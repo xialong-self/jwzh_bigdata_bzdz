@@ -51,7 +51,8 @@ public class Bzdz_wtsjfx_all {
                 .union(gxdw_data_2)
                 .union(gxdw_data_3)
                 .union(gxdw_data_4)
-                .union(gxdw_data_5);
+                .union(gxdw_data_5)
+                .distinct();
         ImportMysql.saveTjjgToEsMYSQL(gxdw_data,"bzdz_wtsjfx_gxdw");
         gxdw_data_yx.unpersist();
         //门牌号不正确（门牌号，门牌号后缀，号附号等）（MPH）
@@ -70,7 +71,8 @@ public class Bzdz_wtsjfx_all {
         Dataset<Row> mph_mldzid=mph_data_1
                 .union(mph_data_2)
                 .union(mph_data_3)
-                .union(mph_data_4);
+                .union(mph_data_4)
+                .distinct();
         Dataset<Row> mph_data=mph_ml_data.except(mph_mldzid).distinct();
         ImportMysql.saveTjjgToEsMYSQL(mph_data,"bzdz_wtsjfx_mph");
         mph_ml_data.unpersist();
@@ -86,6 +88,7 @@ public class Bzdz_wtsjfx_all {
                 .union(xzgx_ml_data_2)
                 .union(xzgx_ml_data_3)
                 .union(xzgx_ml_data_4)
+                .distinct()
                 .selectExpr("mldzid as dzid","dzjb","shiid","qxgxid","xzjdbscid","sqdm");
         ImportMysql.saveTjjgToEsMYSQL(xzqh_data,"bzdz_wtsjfx_xzgx");
 
@@ -105,7 +108,8 @@ public class Bzdz_wtsjfx_all {
         Dataset<Row> zrqdm_data=zrqdm_ml_data
                 .union(zrqdm_ch_data)
                 .union(zrqdm_ml_data_null)
-                .union(zrqdm_ch_data_null);
+                .union(zrqdm_ch_data_null)
+                .distinct();
 
         ImportMysql.saveTjjgToEsMYSQL(zrqdm_data,"bzdz_wtsjfx_zrq");
 
@@ -127,7 +131,9 @@ public class Bzdz_wtsjfx_all {
                 .join(delete_ch_data_yx,delete_ml_data_wx.col("mldzid").equalTo(delete_ch_data_yx.col("mldzid")))
                 .selectExpr("chdzid as dzid","dzjb");
 
-        Dataset<Row> delete_data=delete_jlx_ml_data.union(delete_ml_ch_data);
+        Dataset<Row> delete_data=delete_jlx_ml_data
+                .union(delete_ml_ch_data)
+                .distinct();
         ImportMysql.saveTjjgToEsMYSQL(delete_data,"bzdz_wtsjfx_delete");
 
         //门楼为房屋，但存在下级地址（FWXJDZ）
