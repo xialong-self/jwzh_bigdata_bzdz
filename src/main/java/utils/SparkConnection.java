@@ -11,8 +11,6 @@ public class SparkConnection {
 		.config("spark.driver.host","80.2.36.26")
 		.config("spark.yarn.jars","hdfs://80.2.36.26:8020/spark/cdhjars/*")
 		.config("spark.yarn.queue", "hive")
-//		.config("spark.table.chech.partition",true)
-//		.config("spark.table.chech.partition.num",30)
 		.config("spark.dynamicAllocation.enabled", true)
 		.config("spark.shuffle.service.enabled", true)
 		.config("spark.cores.max",56)//spark程序需要的总核数
@@ -24,6 +22,7 @@ public class SparkConnection {
 		.config("spark.executor.memory","2G")//jvm程序的开销
 		.config("spark.sql.autoBroadcastJoinThreshold",-1)//大表join请关闭此项，小表join可以开启
 		.config("spark.default.parallelism",20)//spark rdd拆分的块的数量
+		.config("spark_cores_max",56)
 		.getOrCreate();
 		return sparkSession;
 	}

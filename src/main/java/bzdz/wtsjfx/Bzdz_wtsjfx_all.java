@@ -8,13 +8,16 @@ import utils.DateTimeUtils;
 import utils.ImportMysql;
 import utils.SparkConnection;
 
+import java.util.Date;
+
 /**
  * @author 夏龙
  * @date 2020-11-05
  */
 public class Bzdz_wtsjfx_all {
     public static void main(String[] args) {
-
+        String Date= DateTimeUtils.DateToString(new Date(), DateTimeUtils.YYYY_MM_DD);
+        String Tjzq=DateTimeUtils.DateToString(DateTimeUtils.StringToDate(Date, DateTimeUtils.YYYY_MM_DD),DateTimeUtils.YYYY_MM_DD);
 
         SparkSession sparkSession= SparkConnection.SparkConnectionx();
         Dataset<Row> ml_data=BzdzData.Mljbxxb(sparkSession).cache();
@@ -38,7 +41,7 @@ public class Bzdz_wtsjfx_all {
                 .filter("dqjlxmc<>sjjlxmc")
                 .selectExpr("mldzid as dzid","jlxdm","jlxid","dzjb","dqjlxmc","sjjlxmc")
                 .distinct();
-        ImportMysql.saveTjjgToEsMYSQL(dzmc_data,"bzdz_wtsjfx_dzmc");
+        ImportMysql.saveTjjgToEsMYSQL(dzmc_data,"bzdz_wtsjfx_dzmc"+Tjzq);
         /**上下级管辖单位不一致（GXDW）**/
         Dataset<Row> gxdw_ml_data=ml_data_yx
                 .selectExpr("mldzid","sjdm as sjsjdm","fxjdm as sjfxjdm","pcsdm as sjpcsdm","zrqdm as sjzrqdm");
@@ -86,7 +89,7 @@ public class Bzdz_wtsjfx_all {
                 .union(gxdw_data_4)
                 .union(gxdw_data_5)
                 .distinct();
-        ImportMysql.saveTjjgToEsMYSQL(gxdw_data,"bzdz_wtsjfx_gxdw");
+        ImportMysql.saveTjjgToEsMYSQL(gxdw_data,"bzdz_wtsjfx_gxdw"+Tjzq);
         gxdw_jg.unpersist();
         gxdw_ch_data.unpersist();
         /**门牌号不正确（门牌号，门牌号后缀，号附号等）（MPH）**/
@@ -108,7 +111,7 @@ public class Bzdz_wtsjfx_all {
                 .union(mph_data_4)
                 .distinct();
         Dataset<Row> mph_data=mph_ml_data.except(mph_mldzid).distinct();
-        ImportMysql.saveTjjgToEsMYSQL(mph_data,"bzdz_wtsjfx_mph");
+        ImportMysql.saveTjjgToEsMYSQL(mph_data,"bzdz_wtsjfx_mph"+Tjzq);
         mph_ml_data.unpersist();
         /**行政管辖不正确（XZGX）**/
         Dataset<Row> xzgx_ml_data=ml_data_yx
@@ -124,7 +127,7 @@ public class Bzdz_wtsjfx_all {
                 .union(xzgx_ml_data_4)
                 .distinct()
                 .selectExpr("mldzid as dzid","dzjb","shiid","qxgxid","xzjdbscid","sqdm");
-        ImportMysql.saveTjjgToEsMYSQL(xzqh_data,"bzdz_wtsjfx_xzgx");
+        ImportMysql.saveTjjgToEsMYSQL(xzqh_data,"bzdz_wtsjfx_xzgx"+Tjzq);
         xzgx_ml_data.unpersist();
         /**派出所代码与责任区代码不一致的（ZRQDM）**/
         Dataset<Row> zrqdm_ml_data=ml_data_yx
@@ -138,7 +141,7 @@ public class Bzdz_wtsjfx_all {
                 .union(zrqdm_ch_data)
                 .distinct();
 
-        ImportMysql.saveTjjgToEsMYSQL(zrqdm_data,"bzdz_wtsjfx_zrq");
+        ImportMysql.saveTjjgToEsMYSQL(zrqdm_data,"bzdz_wtsjfx_zrq"+Tjzq);
 
         /**上级地址注销，下级地址未同步注销的情况（DELETE）**/
         Dataset<Row> delete_jlx_data=jlx_data_wx
@@ -173,7 +176,7 @@ public class Bzdz_wtsjfx_all {
                 .union(delete_ch)
                 .distinct();
 
-        ImportMysql.saveTjjgToEsMYSQL(delete_sc,"bzdz_wtsjfx_delete");
+        ImportMysql.saveTjjgToEsMYSQL(delete_sc,"bzdz_wtsjfx_delete"+Tjzq);
 
         /**门楼为房屋，但存在下级地址（FWXJDZ）**/
         Dataset<Row> fwxjdz_ml_data=ml_data_yx
@@ -186,13 +189,13 @@ public class Bzdz_wtsjfx_all {
                 .join(fwxjdz_ch_data,fwxjdz_ml_data.col("mldzid").equalTo(fwxjdz_ch_data.col("chmldzid")))
                 .selectExpr("mldzid as dzid","dzjb")
                 .distinct();
-        ImportMysql.saveTjjgToEsMYSQL(fwxjdz_data,"bzdz_wtsjfx_fwxjdz");
+        ImportMysql.saveTjjgToEsMYSQL(fwxjdz_data,"bzdz_wtsjfx_fwxjdz"+Tjzq);
 
         /**bzdz_wtsjfx_parent**/
-        Dataset<Row> parent_ch_data=ch_data_yx
+        Dataset<Row> parent_ch_data=ch_data
                 .filter(" parenttreepath = '' and dzjb<>'4' ")
                 .selectExpr("chdzid as dzid","dzjb");
-        ImportMysql.saveTjjgToEsMYSQL(parent_ch_data,"bzdz_wtsjfx_parent");
+        ImportMysql.saveTjjgToEsMYSQL(parent_ch_data,"bzdz_wtsjfx_parent"+Tjzq);
 
         /**bzdz_wtsjfx_fwdzbyz(地址房屋不一致)**/
         Dataset<Row> fwdzbyz_data_ml=syfw_data
@@ -212,7 +215,7 @@ public class Bzdz_wtsjfx_all {
                 .selectExpr("dzid","dzjb","id as fwid");
 
         Dataset<Row> fwdzbyz_data_sc=fwdzbyz_data_1.union(fwdzbyz_data_2).union(fwdzbyz_data_3).distinct();
-        ImportMysql.saveTjjgToEsMYSQL(fwdzbyz_data_sc,"bzdz_wtsjfx_fwdzbyz");
+        ImportMysql.saveTjjgToEsMYSQL(fwdzbyz_data_sc,"bzdz_wtsjfx_fwdzbyz"+Tjzq);
 
 
 
@@ -273,6 +276,8 @@ public class Bzdz_wtsjfx_all {
         Dataset<Row> ch_data_wc=ch_data_4.union(ch_data_5).union(ch_data_6).union(ch_data_7).distinct().cache();
         Dataset<Row> ch_data_wc_li=ch_data_wc.filter("sflj='1'")
                 .selectExpr("chdzid","sjdzid","dqdzmc","concat(zqdzmc,'(临)') as zqdzmc","dzjb");
+        
+
         Dataset<Row> ch_data_wc_liN=ch_data_wc.filter("sflj<>'1'")
                 .selectExpr("chdzid","sjdzid","dqdzmc","zqdzmc","dzjb");
         Dataset<Row> ch_data_all=ch_data_wc_li.union(ch_data_wc_liN).distinct();
@@ -280,7 +285,7 @@ public class Bzdz_wtsjfx_all {
         Dataset<Row> ch_data_chdzmchd_sc=ch_data_all.filter("dqdzmc<>zqdzmc")
                 .selectExpr("chdzid","sjdzid","dqdzmc","zqdzmc","dzjb");
 
-        ImportMysql.saveTjjgToEsMYSQL(ch_data_chdzmchd_sc,"bzdz_wtsjfx_chdzdxb");
+        ImportMysql.saveTjjgToEsMYSQL(ch_data_chdzmchd_sc,"bzdz_wtsjfx_chdzdxb"+Tjzq);
 
         sparkSession.stop();
 
