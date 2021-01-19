@@ -1,7 +1,7 @@
 utils\DateTimeUtils.class
 bzdz\wtsjfx\Bzdz_wtsjfx_all.class
+bzdz\wtsjfx\Jzgj_bzdz_wtsjfx.class
 utils\SparkConnection.class
-bzdz\wtsjfx\Bzdz_wtsjfx_chdzmc.class
 utils\BzdzData.class
 org\example\App.class
 utils\ImportMysql.class

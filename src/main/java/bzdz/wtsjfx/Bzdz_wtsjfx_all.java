@@ -17,7 +17,7 @@ import java.util.Date;
 public class Bzdz_wtsjfx_all {
     public static void main(String[] args) {
         String Date= DateTimeUtils.DateToString(new Date(), DateTimeUtils.YYYY_MM_DD);
-        String Tjzq=DateTimeUtils.DateToString(DateTimeUtils.StringToDate(Date, DateTimeUtils.YYYY_MM_DD),DateTimeUtils.YYYY_MM_DD);
+        String Tjzq=DateTimeUtils.DateToString(DateTimeUtils.StringToDate(Date, DateTimeUtils.YYYY_MM_DD),DateTimeUtils.YYYY_MM_DD).replace("-","_");;
 
         SparkSession sparkSession= SparkConnection.SparkConnectionx();
         Dataset<Row> ml_data=BzdzData.Mljbxxb(sparkSession).cache();
